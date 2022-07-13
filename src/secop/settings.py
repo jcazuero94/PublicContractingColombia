@@ -5,6 +5,7 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 # Instantiated project hooks.
 # from secop.hooks import ProjectHooks
 # HOOKS = (ProjectHooks(),)
+from secop.context import CustomContext
 
 # Installed plugins for which to disable hook auto-registration.
 # DISABLE_HOOKS_FOR_PLUGINS = ("kedro-viz",)
@@ -20,6 +21,7 @@ https://kedro.readthedocs.io/en/stable/kedro_project_setup/settings.html."""
 # Class that manages Kedro's library components.
 # from kedro.framework.context import KedroContext
 # CONTEXT_CLASS = KedroContext
+CONTEXT_CLASS = CustomContext
 
 # Directory that holds configuration.
 # CONF_SOURCE = "conf"
