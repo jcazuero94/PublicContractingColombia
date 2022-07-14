@@ -34,7 +34,7 @@ class CustomContext(KedroContext):
         # Initialise the spark session
         spark_session_conf = (
             SparkSession.builder.appName(self._package_name)
-            .master("local[8]")
+            .master("local[*]")
             .config(conf=spark_conf)
         )
         _spark_session = spark_session_conf.getOrCreate()

@@ -4,3 +4,4 @@ spark.driver.memory: 8g
 spark.executor.memory: 3g
 spark.driver.extraJavaOptions: -XX:+UseG1GC
 spark.executor.extraJavaOptions:  -XX:+UseG1GC
+spark.sql.sources.partitionOverwriteMode: dynamic

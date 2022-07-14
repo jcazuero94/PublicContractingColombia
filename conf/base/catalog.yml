@@ -1,15 +1,23 @@
-secop2:
+secop_2:
   type: kedro.extras.datasets.spark.SparkDataSet
   file_format: parquet
-  filepath: data/01_raw/secop2
+  filepath: data/01_raw/secop_2
   save_args:
-    mode: append
+    mode: overwrite
     partitionBy: nit_entidad
 
-secop2_log_in:
+secop_2_log_in:
   type: json.JSONDataSet
-  filepath: data/01_raw/secop2_log.json
+  filepath: data/01_raw/secop_2_log.json
 
-secop2_log_out:
+secop_2_log_out:
   type: json.JSONDataSet
-  filepath: data/01_raw/secop2_log.json
+  filepath: data/01_raw/secop_2_log.json
+
+secop_int_log_in:
+  type: json.JSONDataSet
+  filepath: data/01_raw/secop_int_log.json
+
+secop_int_log_out:
+  type: json.JSONDataSet
+  filepath: data/01_raw/secop_int_log.json
