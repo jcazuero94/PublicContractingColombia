@@ -6,6 +6,14 @@ secop_2:
     mode: overwrite
     partitionBy: nit_entidad
 
+secop_int:
+  type: kedro.extras.datasets.spark.SparkDataSet
+  file_format: parquet
+  filepath: data/01_raw/secop_int
+  save_args:
+    mode: overwrite
+    partitionBy: nit_de_la_entidad
+
 secop_2_log_in:
   type: json.JSONDataSet
   filepath: data/01_raw/secop_2_log.json

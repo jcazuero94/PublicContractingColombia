@@ -15,7 +15,9 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 conda activate dm_project
-for i in {1..950}
+#kedro run
+for i in {1..100}
 do
     kedro run --node secop_2_extraction
+    kedro run --node secop_int_extraction
 done
