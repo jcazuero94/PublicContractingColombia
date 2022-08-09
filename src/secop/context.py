@@ -7,6 +7,8 @@ from pyspark.sql import SparkSession
 from kedro.framework.context import KedroContext
 from kedro.config import ConfigLoader
 from pluggy import PluginManager
+import os
+import sys
 
 
 class CustomContext(KedroContext):
@@ -22,6 +24,8 @@ class CustomContext(KedroContext):
         super().__init__(
             package_name, project_path, config_loader, hook_manager, env, extra_params
         )
+        os.environ["PYSPARK_PYTHON"] = sys.executable
+        os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
         self.init_spark_session()
 
     def init_spark_session(self) -> None:
