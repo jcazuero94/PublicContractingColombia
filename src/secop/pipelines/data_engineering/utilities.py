@@ -77,7 +77,14 @@ def _get_nit_to_extract(log):
     if len(nits_to_extract) > 0:
         nit_to_extract = nits_to_extract[0]
     else:
-        list_dates = [(log[k]["date"], k) for k in log.keys()]
+        list_failed = [
+            (log[k]["date"], k) for k in log.keys() if log[k]["success"] == 0
+        ]
+        list_dates = (
+            [(log[k]["date"], k) for k in log.keys()]
+            if len(list_failed) == 0
+            else list_failed
+        )
         list_dates.sort()
         nit_to_extract = list_dates[0][1]
     return nit_to_extract

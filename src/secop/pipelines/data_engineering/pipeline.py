@@ -27,14 +27,20 @@ def create_pipeline(**kwargs):
             node(
                 func=secop_2_extraction,
                 inputs=["secop_2_log_in"],
-                outputs=["secop_2_log_out", "secop_2"],
+                outputs=[
+                    "secop_2",
+                    "secop_2_log_out",
+                ],
                 name="secop_2_extraction",
                 tags=["data_engineering"],
             ),
             node(
                 func=secop_int_extraction,
                 inputs=["secop_int_log_in"],
-                outputs=["secop_int_log_out", "secop_int"],
+                outputs=[
+                    "secop_int",
+                    "secop_int_log_out",
+                ],
                 name="secop_int_extraction",
                 tags=["data_engineering"],
             ),

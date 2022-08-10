@@ -1,5 +1,5 @@
 secop_2:
-  type: kedro.extras.datasets.spark.SparkDataSet
+  type: secop.extras.spark_dataset_secop.SparkDataSetSECOP
   file_format: parquet
   filepath: data/01_raw/secop_2
   save_args:
@@ -7,7 +7,7 @@ secop_2:
     partitionBy: nit_entidad
 
 secop_int:
-  type: kedro.extras.datasets.spark.SparkDataSet
+  type: secop.extras.spark_dataset_secop.SparkDataSetSECOP
   file_format: parquet
   filepath: data/01_raw/secop_int
   save_args:

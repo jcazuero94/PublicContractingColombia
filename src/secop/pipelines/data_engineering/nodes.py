@@ -19,7 +19,7 @@ def secop_2_log():
     client = Socrata("www.datos.gov.co", None)
     request = client.get(CODE_SECOPII, select="distinct nit_entidad")
     nits_list = [x["nit_entidad"] for x in request]
-    return {x: {"req": 0, "date": 0} for x in nits_list}
+    return {x: {"req": 0, "date": 0, "success": 0} for x in nits_list}
 
 
 def secop_int_log():
@@ -27,7 +27,7 @@ def secop_int_log():
     client = Socrata("www.datos.gov.co", None)
     request = client.get(CODE_INTEGRATED, select="distinct nit_de_la_entidad")
     nits_list = [x["nit_de_la_entidad"] for x in request]
-    return {x: {"req": 0, "date": 0} for x in nits_list}
+    return {x: {"req": 0, "date": 0, "success": 0} for x in nits_list}
 
 
 def secop_2_extraction(secop_2_log: Dict):
@@ -64,10 +64,17 @@ def secop_2_extraction(secop_2_log: Dict):
         offset += lim
     # Fix nulls
     results_df.fillna("", inplace=True)
-    # Update log
+    try:
+        result_spark = sql_ctx.createDataFrame(results_df)
+        secop_2_log[nit_to_extract]["success"] = 1
+    except IndexError:
+        print(results_df)
+        result_spark = sql_ctx.createDataFrame()
+        secop_2_log[nit_to_extract]["success"] = 0
     secop_2_log[nit_to_extract]["req"] = 1
     secop_2_log[nit_to_extract]["date"] = str(datetime.datetime.now())
-    return secop_2_log, sql_ctx.createDataFrame(results_df)
+
+    return result_spark, secop_2_log
 
 
 def secop_int_extraction(secop_int_log: Dict):
@@ -104,7 +111,13 @@ def secop_int_extraction(secop_int_log: Dict):
         offset += lim
     # Fix nulls
     results_df.fillna("", inplace=True)
-    # Update log
+    try:
+        result_spark = sql_ctx.createDataFrame(results_df)
+        secop_int_log[nit_to_extract]["success"] = 1
+    except IndexError:
+        print(results_df)
+        result_spark = sql_ctx.createDataFrame()
+        secop_int_log[nit_to_extract]["success"] = 0
     secop_int_log[nit_to_extract]["req"] = 1
     secop_int_log[nit_to_extract]["date"] = str(datetime.datetime.now())
-    return secop_int_log, sql_ctx.createDataFrame(results_df)
+    return result_spark, secop_int_log
