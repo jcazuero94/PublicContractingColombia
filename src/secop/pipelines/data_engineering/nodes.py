@@ -9,6 +9,7 @@ from secop.pipelines.data_engineering.utilities import (
     COLS_INT,
     _get_nit_to_extract,
 )
+from pyspark.sql.types import StructType
 
 CODE_INTEGRATED = "rpmr-utcd"
 CODE_SECOPII = "p6dx-8zbt"
@@ -68,8 +69,8 @@ def secop_2_extraction(secop_2_log: Dict):
         result_spark = sql_ctx.createDataFrame(results_df)
         secop_2_log[nit_to_extract]["success"] = 1
     except IndexError:
-        print(results_df)
-        result_spark = sql_ctx.createDataFrame()
+        schema = StructType([])
+        result_spark = sql_ctx.createDataFrame([], schema)
         secop_2_log[nit_to_extract]["success"] = 0
     secop_2_log[nit_to_extract]["req"] = 1
     secop_2_log[nit_to_extract]["date"] = str(datetime.datetime.now())
@@ -115,8 +116,8 @@ def secop_int_extraction(secop_int_log: Dict):
         result_spark = sql_ctx.createDataFrame(results_df)
         secop_int_log[nit_to_extract]["success"] = 1
     except IndexError:
-        print(results_df)
-        result_spark = sql_ctx.createDataFrame()
+        schema = StructType([])
+        result_spark = sql_ctx.createDataFrame([], schema)
         secop_int_log[nit_to_extract]["success"] = 0
     secop_int_log[nit_to_extract]["req"] = 1
     secop_int_log[nit_to_extract]["date"] = str(datetime.datetime.now())

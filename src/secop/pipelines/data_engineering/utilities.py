@@ -77,6 +77,7 @@ def _get_nit_to_extract(log):
     if len(nits_to_extract) > 0:
         nit_to_extract = nits_to_extract[0]
     else:
+        print("All nits previously extracted. Retry failed and update")
         list_failed = [
             (log[k]["date"], k) for k in log.keys() if log[k]["success"] == 0
         ]
@@ -88,3 +89,14 @@ def _get_nit_to_extract(log):
         list_dates.sort()
         nit_to_extract = list_dates[0][1]
     return nit_to_extract
+
+
+def _remove_tildes(string: str):
+    """Remove spanish accentuation mark for string standarization"""
+    return (
+        string.replace("á", "a")
+        .replace("é", "e")
+        .replace("ó", "o")
+        .replace("í", "i")
+        .replace("ú", "u")
+    )
