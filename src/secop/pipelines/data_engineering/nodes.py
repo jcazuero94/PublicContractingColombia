@@ -2,14 +2,22 @@ import pandas as pd
 from sodapy import Socrata
 from typing import Dict
 import datetime
+from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
 from secop.pipelines.data_engineering.utilities import (
     COLS_SEC_2,
     COLS_INT,
     _get_nit_to_extract,
+    _remove_tildes,
+    _clean_modalidad_contratacion,
+    _clean_tipo_contrato,
 )
 from pyspark.sql.types import StructType
+from pyspark.sql import SparkSession
+from pyspark.sql import SQLContext
+import pyspark.sql.functions as F
+from pyspark.sql.functions import col, udf
 
 CODE_INTEGRATED = "rpmr-utcd"
 CODE_SECOPII = "p6dx-8zbt"
@@ -122,3 +130,51 @@ def secop_int_extraction(secop_int_log: Dict):
     secop_int_log[nit_to_extract]["req"] = 1
     secop_int_log[nit_to_extract]["date"] = str(datetime.datetime.now())
     return result_spark, secop_int_log
+
+
+def clean_secop_int(secop_int: SparkDataFrame):
+    """Clean secop integrated database"""
+    # Drop unused columns
+    # TODO include this restriction in the query
+    secop_int = secop_int.drop(
+        "origen", "tipo_contrato", "numero_del_contrato", "numero_de_proceso"
+    )
+    # To lower case and remove spainsh accent
+    for c in [
+        "nom_raz_social_contratista",
+        "departamento_entidad",
+        "municipio_entidad",
+        "objeto_a_contratar",
+        "objeto_del_proceso",
+        "nivel_entidad",
+        "estado_del_proceso",
+        "modalidad_de_contrataci_n",
+        "tipo_de_contrato",
+    ]:
+        secop_int = secop_int.withColumn(c, F.lower(col(c)))
+        if c in [
+            "nom_raz_social_contratista",
+            "departamento_entidad",
+            "municipio_entidad",
+            "estado_del_proceso",
+            "modalidad_de_contrataci_n",
+            "tipo_de_contrato",
+        ]:
+            secop_int = secop_int.withColumn(c, udf(_remove_tildes)(col(c)))
+    secop_int = secop_int.withColumn(
+        "modalidad_de_contratacion",
+        udf(_clean_modalidad_contratacion)(col("modalidad_de_contrataci_n")),
+    )
+    secop_int = secop_int.drop("modalidad_de_contrataci_n")
+    secop_int = secop_int.withColumn(
+        "tipo_de_contrato",
+        udf(_clean_tipo_contrato)(col("tipo_de_contrato")),
+    )
+    secop_int = secop_int.withColumn(
+        "valor_contrato", col("valor_contrato").cast("integer")
+    )
+    secop_int = secop_int.withColumn(
+        "nit_de_la_entidad",
+        udf(lambda x: int(x.replace(".", "").split("-")[0]))(col("nit_de_la_entidad")),
+    )
+    return secop_int

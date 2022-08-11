@@ -29,3 +29,11 @@ secop_int_log_in:
 secop_int_log_out:
   type: json.JSONDataSet
   filepath: data/01_raw/secop_int_log.json
+
+secop_int_clean:
+  type: spark.SparkDataSet
+  file_format: parquet
+  filepath: data/02_intermediate/secop_int_clean
+  save_args:
+    mode: overwrite
+    partitionBy: nit_de_la_entidad

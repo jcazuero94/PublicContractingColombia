@@ -4,6 +4,7 @@ from secop.pipelines.data_engineering.nodes import (
     secop_2_extraction,
     secop_int_log,
     secop_int_extraction,
+    clean_secop_int,
 )
 
 
@@ -42,6 +43,13 @@ def create_pipeline(**kwargs):
                     "secop_int_log_out",
                 ],
                 name="secop_int_extraction",
+                tags=["data_engineering"],
+            ),
+            node(
+                func=clean_secop_int,
+                inputs=["secop_int"],
+                outputs="secop_int_clean",
+                name="clean_secop_int",
                 tags=["data_engineering"],
             ),
         ]

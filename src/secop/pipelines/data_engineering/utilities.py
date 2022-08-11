@@ -1,3 +1,77 @@
+def _get_nit_to_extract(log: dict):
+    nits_to_extract = [k for k in log.keys() if log[k]["req"] == 0]
+    if len(nits_to_extract) > 0:
+        nit_to_extract = nits_to_extract[0]
+    else:
+        print("All nits previously extracted. Retry failed and update")
+        list_failed = [
+            (log[k]["date"], k) for k in log.keys() if log[k]["success"] == 0
+        ]
+        list_dates = (
+            [(log[k]["date"], k) for k in log.keys()]
+            if len(list_failed) == 0
+            else list_failed
+        )
+        list_dates.sort()
+        nit_to_extract = list_dates[0][1]
+    return nit_to_extract
+
+
+def _remove_tildes(string: str):
+    """Remove spanish accentuation mark for string standarization"""
+    return (
+        string.replace("á", "a")
+        .replace("é", "e")
+        .replace("ó", "o")
+        .replace("í", "i")
+        .replace("ú", "u")
+    )
+
+
+def _clean_tipo_contrato(tip: str):
+    """Clean and group tipo de contrato"""
+    if ("suministro" in tip) or (tip in ["compraventa", "venta muebles"]):
+        return "suministro"
+    elif ("arrendamiento" in tip) or ("comodato" in tip):
+        return "arrendamiento"
+    elif tip in [
+        "servicios financieros",
+        "credito",
+        "fiducia",
+        "seguros",
+        "emprestito",
+    ]:
+        return "servicios financieros"
+    elif tip in [
+        "obra",
+        "consultoria",
+        "prestacion de servicios",
+        "interventoria",
+        "concesion",
+    ]:
+        return tip
+    else:
+        return "Otro"
+
+
+def _clean_modalidad_contratacion(mod: str):
+    """Clean and group modalidad de contratacion"""
+    if ("concurso de meritos" in mod) or ("concurso_meritos" in mod):
+        return "concurso de meritos abiertos"
+    elif "regimen especial" in mod:
+        return "regimen especial"
+    elif ("minima cuantia" in mod) or ("menor cuantia" in mod):
+        return "minima cuantia"
+    elif "contratacion directa" in mod:
+        return "contratacion directa"
+    elif "subasta" in mod:
+        return "subasta"
+    elif ("licitacion publica" in mod) or ("licitacion obra publica" in mod):
+        return "licitacion publica"
+    else:
+        return "Otro"
+
+
 COLS_SEC_2 = [
     "entidad",
     "departamento_entidad",
@@ -70,33 +144,3 @@ COLS_INT = [
     "fecha_inicio_ejecucion",
     "fecha_fin_ejecucion",
 ]
-
-
-def _get_nit_to_extract(log):
-    nits_to_extract = [k for k in log.keys() if log[k]["req"] == 0]
-    if len(nits_to_extract) > 0:
-        nit_to_extract = nits_to_extract[0]
-    else:
-        print("All nits previously extracted. Retry failed and update")
-        list_failed = [
-            (log[k]["date"], k) for k in log.keys() if log[k]["success"] == 0
-        ]
-        list_dates = (
-            [(log[k]["date"], k) for k in log.keys()]
-            if len(list_failed) == 0
-            else list_failed
-        )
-        list_dates.sort()
-        nit_to_extract = list_dates[0][1]
-    return nit_to_extract
-
-
-def _remove_tildes(string: str):
-    """Remove spanish accentuation mark for string standarization"""
-    return (
-        string.replace("á", "a")
-        .replace("é", "e")
-        .replace("ó", "o")
-        .replace("í", "i")
-        .replace("ú", "u")
-    )
