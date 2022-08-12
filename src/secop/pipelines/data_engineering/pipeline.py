@@ -27,7 +27,7 @@ def create_pipeline(**kwargs):
             ),
             node(
                 func=secop_2_extraction,
-                inputs=["secop_2_log_in"],
+                inputs=["secop_2_log_in", "params:num_nits_to_extract"],
                 outputs=[
                     "secop_2",
                     "secop_2_log_out",
@@ -37,7 +37,7 @@ def create_pipeline(**kwargs):
             ),
             node(
                 func=secop_int_extraction,
-                inputs=["secop_int_log_in"],
+                inputs=["secop_int_log_in", "params:num_nits_to_extract"],
                 outputs=[
                     "secop_int",
                     "secop_int_log_out",

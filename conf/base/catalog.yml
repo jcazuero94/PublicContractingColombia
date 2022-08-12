@@ -1,10 +1,14 @@
-secop_2:
+secop_2@spark:
   type: secop.extras.spark_dataset_secop.SparkDataSetSECOP
   file_format: parquet
   filepath: data/01_raw/secop_2
   save_args:
     mode: overwrite
     partitionBy: nit_entidad
+
+secop_2@pandas:
+  type: secop.extras.pandas_dataset_secop.ParquetDataSetSecop
+  filepath: data/01_raw/secop_2
 
 secop_int:
   type: secop.extras.spark_dataset_secop.SparkDataSetSECOP
