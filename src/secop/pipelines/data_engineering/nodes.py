@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sodapy import Socrata
 from typing import Dict
 import datetime
@@ -6,14 +7,14 @@ from pyspark.sql import DataFrame as SparkDataFrame
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
 from secop.pipelines.data_engineering.utilities import (
-    schema_secop_2,
-    schema_secop_int,
+    dic_schemas,
     _get_nits_to_extract,
     _remove_tildes,
     _clean_modalidad_contratacion,
+    _clean_modalidad_contratacion_2,
     _clean_tipo_contrato,
+    _to_int,
 )
-from pyspark.sql.types import StructType
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
 import pyspark.sql.functions as F
@@ -21,145 +22,76 @@ from pyspark.sql.functions import col, udf
 
 CODE_INTEGRATED = "rpmr-utcd"
 CODE_SECOPII = "p6dx-8zbt"
+CODE_SECOPII_CONT = "jbjy-vk9h"
 
 
-def secop_2_log():
-    """Creates dictionary of secop2 entities for extraction"""
-    client = Socrata("www.datos.gov.co", None)
-    request = client.get(CODE_SECOPII, select="distinct nit_entidad", limit=100000)
-    nits_list = [x["nit_entidad"] for x in request]
-    return {x: {"req": 0, "date": 0, "success": 0} for x in nits_list}
-
-
-def secop_int_log():
+def secop_log(code: str, col_part: str):
     """Creates dictionary of secop entities for extraction"""
     client = Socrata("www.datos.gov.co", None)
-    request = client.get(
-        CODE_INTEGRATED, select="distinct nit_de_la_entidad", limit=100000
-    )
-    nits_list = [x["nit_de_la_entidad"] for x in request]
+    request = client.get(code, select=f"distinct {col_part}", limit=100000)
+    nits_list = [x[col_part] for x in request]
     return {x: {"req": 0, "date": 0, "success": 0} for x in nits_list}
 
 
-def secop_2_extraction(secop_2_log: Dict, num_nits_to_extract: int):
-    """Extract secop 2 contracts"""
-    # Spark setup
+def secop_extraction(
+    log: Dict, num_nits_to_extract: int, code: str, col_part: str, schema_key: str
+):
+    """Extract secop contracts"""
+    schema = dic_schemas[schema_key]
     spark = SparkSession.builder.getOrCreate()
     sql_ctx = SQLContext(spark.sparkContext)
     # Nit to extract. If all nits have been extracted then the oldest extraction is updated
-    nits_to_extract = _get_nits_to_extract(secop_2_log, num_nits_to_extract)
+    nits_to_extract = _get_nits_to_extract(log, num_nits_to_extract)
     # Request
     client = Socrata("www.datos.gov.co", None)
     lim = 4000
     offset = lim
     print(f"req - {offset-lim} - {datetime.datetime.now()}")
     request = client.get(
-        CODE_SECOPII,
+        code,
         limit=lim,
-        select=", ".join(schema_secop_2.fieldNames()),
-        where='nit_entidad in ("' + '","'.join(nits_to_extract) + '")',
+        select=", ".join(schema.fieldNames()),
+        where=col_part + ' in ("' + '","'.join(nits_to_extract) + '")',
     )
     request_df = pd.DataFrame.from_records(request)
     results_df = request_df.copy()
     while len(request_df) > 0:
         print(f"req - {offset} - {datetime.datetime.now()}")
         request = client.get(
-            CODE_SECOPII,
+            code,
             limit=lim,
             offset=offset,
-            select=", ".join(schema_secop_2.fieldNames()),
-            where='nit_entidad in ("' + '","'.join(nits_to_extract) + '")',
+            select=", ".join(schema.fieldNames()),
+            where=col_part + ' in ("' + '","'.join(nits_to_extract) + '")',
         )
         request_df = pd.DataFrame.from_records(request)
         results_df = pd.concat([results_df, request_df], ignore_index=True)
         offset += lim
+
     # Fix nulls
     results_df.fillna("", inplace=True)
     # Adds columns from schema not received
-    for c in set(schema_secop_2.fieldNames()).difference(results_df.columns):
+    for c in set(schema.fieldNames()).difference(results_df.columns):
         results_df[c] = ""
     for n in nits_to_extract:
-        secop_2_log[n]["req"] = 1
-        secop_2_log[n]["date"] = str(datetime.datetime.now())
+        log[n]["req"] = 1
+        log[n]["date"] = str(datetime.datetime.now())
     success = 1
     for c in set(results_df.columns).intersection(
-        [
-            "fecha_de_publicacion_del",
-            "fecha_de_ultima_publicaci",
-            "fecha_de_publicacion_fase_3",
-            "fecha_de_recepcion_de",
-            "fecha_de_apertura_efectiva",
-        ]
+        [s for s in schema.fieldNames() if str(schema[s].dataType) == "DateType"]
     ):
         results_df[c] = pd.to_datetime(
             results_df[c].replace("", pd.NaT), errors="coerce"
         )
-    results_df = results_df[schema_secop_2.fieldNames()]
+    results_df = results_df[schema.fieldNames()]
     try:
-        result_spark = sql_ctx.createDataFrame(results_df, schema=schema_secop_2)
+        result_spark = sql_ctx.createDataFrame(results_df, schema=schema)
     except IndexError:
-        result_spark = sql_ctx.createDataFrame([], schema_secop_2)
+        result_spark = sql_ctx.createDataFrame([], schema)
         success = 0
     for n in nits_to_extract:
-        secop_2_log[n]["success"] = success
-
-    return result_spark, secop_2_log
-
-
-def secop_int_extraction(secop_int_log: Dict, num_nits_to_extract: int):
-    """Extract secop contracts from database secop integrado"""
-    # Spark setup
-    spark = SparkSession.builder.getOrCreate()
-    sql_ctx = SQLContext(spark.sparkContext)
-    # Nit to extract. If all nits have been extracted then the oldest extraction is updated
-    nits_to_extract = _get_nits_to_extract(secop_int_log, num_nits_to_extract)
-    # Request
-    client = Socrata("www.datos.gov.co", None)
-    lim = 4000
-    offset = lim
-    print(f"req - {offset-lim} - {datetime.datetime.now()}")
-    request = client.get(
-        CODE_INTEGRATED,
-        limit=lim,
-        select=", ".join(schema_secop_int.fieldNames()),
-        where='nit_de_la_entidad in ("' + '","'.join(nits_to_extract) + '")',
-    )
-    request_df = pd.DataFrame.from_records(request)
-    results_df = request_df.copy()
-    while len(request_df) > 0:
-        print(f"req - {offset} - {datetime.datetime.now()}")
-        request = client.get(
-            CODE_INTEGRATED,
-            limit=lim,
-            offset=offset,
-            select=", ".join(schema_secop_int.fieldNames()),
-            where='nit_de_la_entidad in ("' + '","'.join(nits_to_extract) + '")',
-        )
-        request_df = pd.DataFrame.from_records(request)
-        results_df = pd.concat([results_df, request_df], ignore_index=True)
-        offset += lim
-    # Fix nulls
-    results_df.fillna("", inplace=True)
-    # Adds columns from schema not received
-    for c in set(schema_secop_int.fieldNames()).difference(results_df.columns):
-        results_df[c] = ""
-    for n in nits_to_extract:
-        secop_int_log[n]["req"] = 1
-        secop_int_log[n]["date"] = str(datetime.datetime.now())
-    success = 1
-    for c in set(results_df.columns).intersection(
-        ["fecha_de_firma_del_contrato", "fecha_fin_ejecucion", "fecha_inicio_ejecucion"]
-    ):
-        results_df[c] = pd.to_datetime(results_df[c], errors="coerce")
-    results_df = results_df[schema_secop_int.fieldNames()]
-    try:
-        result_spark = sql_ctx.createDataFrame(results_df, schema=schema_secop_int)
-    except IndexError:
-        result_spark = sql_ctx.createDataFrame([], schema_secop_int)
-        success = 0
-    for n in nits_to_extract:
-        secop_int_log[n]["success"] = success
-    return result_spark, secop_int_log
+        log[n]["success"] = success
+    return result_spark, log
 
 
 def clean_secop_int(secop_int: SparkDataFrame):
@@ -209,3 +141,94 @@ def clean_secop_int(secop_int: SparkDataFrame):
         ),
     )
     return secop_int
+
+
+def clean_secop_2(secop_2: pd.DataFrame):
+    """Clean secop 2 dataset"""
+    # To lower case and remove spainsh accent
+    COLS_TILDES_LOWER = [
+        "entidad",
+        "departamento_entidad",
+        "ciudad_entidad",
+        "ordenentidad",
+        "fase",
+        "modalidad_de_contratacion",
+        "unidad_de_duracion",
+        "estado_del_procedimiento",
+        "departamento_proveedor",
+        "ciudad_proveedor",
+        "nombre_del_adjudicador",
+        "nombre_del_proveedor",
+    ]
+    secop_2[COLS_TILDES_LOWER] = (
+        secop_2[COLS_TILDES_LOWER].applymap(lambda x: _remove_tildes(x.lower())).values
+    )
+    secop_2 = secop_2[
+        secop_2["modalidad_de_contratacion"]
+        != "solicitud de informacion a los proveedores"
+    ].copy()
+    secop_2 = secop_2[secop_2["estado_del_procedimiento"] == "adjudicado"].copy()
+    secop_2["nit_entidad"] = (
+        secop_2["nit_entidad"]
+        .astype(int)
+        .apply(lambda x: int(np.floor(x / 10)) if x >= 1000000000 else x)
+    )
+    secop_2["modalidad_de_contratacion"] = secop_2["modalidad_de_contratacion"].apply(
+        _clean_modalidad_contratacion_2
+    )
+    for c in [
+        "proveedores_invitados",
+        "proveedores_con_invitacion",
+        "respuestas_al_procedimiento",
+        "respuestas_externas",
+        "conteo_de_respuestas_a_ofertas",
+        "proveedores_unicos_con",
+        "duracion",
+        "valor_total_adjudicacion",
+        "precio_base",
+    ]:
+        secop_2[c] = secop_2[c].astype(int)
+    map_duracion = {"dias": 1, "meses": 30, "años": 365, "nd": 0}
+    secop_2["duracion_dias"] = secop_2[["duracion", "unidad_de_duracion"]].apply(
+        lambda row: row["duracion"] * map_duracion[row["unidad_de_duracion"]], axis=1
+    )
+    # TODO Drop columns not used on request
+    secop_2.drop(
+        [
+            "duracion",
+            "unidad_de_duracion",
+            "adjudicado",
+            "tipo_de_contrato",
+            "subtipo_de_contrato",
+            "visualizaciones_del",
+            "proveedores_que_manifestaron",
+            "estado_del_procedimiento",
+            "fase",
+        ],
+        axis=1,
+        inplace=True,
+    )
+    secop_2["nit_del_proveedor_adjudicado"] = (
+        secop_2["nit_del_proveedor_adjudicado"].apply(_to_int).astype(str)
+    )
+    secop_2["precio_base"] = secop_2["precio_base"].apply(lambda x: max(x, 0))
+    secop_2["valor_total_adjudicacion"] = secop_2.apply(
+        lambda row: row["precio_base"]
+        if row["valor_total_adjudicacion"] == 0
+        else row["valor_total_adjudicacion"],
+        axis=1,
+    )
+    secop_2 = secop_2[secop_2["valor_total_adjudicacion"] != 0].copy()
+    secop_2.drop("precio_base", axis=1, inplace=True)
+    secop_2.dropna(subset="fecha_de_publicacion_del", inplace=True)
+    secop_2 = secop_2[
+        ~secop_2["nombre_del_procedimiento"].apply(
+            lambda x: ("convenio interadministrativo" == x.lower()[:29])
+            or (" copia" == x.lower()[-6:])
+        )
+    ].copy()
+    secop_2["publication_year"] = pd.DatetimeIndex(
+        secop_2["fecha_de_publicacion_del"]
+    ).year
+    secop_2.drop_duplicates(inplace=True)
+    return secop_2

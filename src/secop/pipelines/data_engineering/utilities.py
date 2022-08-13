@@ -1,9 +1,4 @@
-from pyspark.sql.types import (
-    StructType,
-    StructField,
-    StringType,
-    DateType,
-)
+from pyspark.sql.types import StructType, StructField, StringType, DateType
 
 
 def _get_nits_to_extract(log: dict, num_nits_to_extract: int):
@@ -80,64 +75,121 @@ def _clean_modalidad_contratacion(mod: str):
         return "Otro"
 
 
-schema_secop_2 = StructType(
-    [
-        StructField("nit_entidad", StringType(), True),
-        StructField("entidad", StringType(), True),
-        StructField("departamento_entidad", StringType(), True),
-        StructField("ciudad_entidad", StringType(), True),
-        StructField("ordenentidad", StringType(), True),
-        StructField("id_del_proceso", StringType(), True),
-        StructField("referencia_del_proceso", StringType(), True),
-        StructField("nombre_del_procedimiento", StringType(), True),
-        StructField("descripci_n_del_procedimiento", StringType(), True),
-        StructField("fase", StringType(), True),
-        StructField("precio_base", StringType(), True),
-        StructField("modalidad_de_contratacion", StringType(), True),
-        StructField("duracion", StringType(), True),
-        StructField("unidad_de_duracion", StringType(), True),
-        StructField("proveedores_invitados", StringType(), True),
-        StructField("proveedores_con_invitacion", StringType(), True),
-        StructField("visualizaciones_del", StringType(), True),
-        StructField("proveedores_que_manifestaron", StringType(), True),
-        StructField("respuestas_al_procedimiento", StringType(), True),
-        StructField("respuestas_externas", StringType(), True),
-        StructField("conteo_de_respuestas_a_ofertas", StringType(), True),
-        StructField("proveedores_unicos_con", StringType(), True),
-        StructField("estado_del_procedimiento", StringType(), True),
-        StructField("adjudicado", StringType(), True),
-        StructField("departamento_proveedor", StringType(), True),
-        StructField("ciudad_proveedor", StringType(), True),
-        StructField("valor_total_adjudicacion", StringType(), True),
-        StructField("nombre_del_adjudicador", StringType(), True),
-        StructField("nombre_del_proveedor", StringType(), True),
-        StructField("nit_del_proveedor_adjudicado", StringType(), True),
-        StructField("tipo_de_contrato", StringType(), True),
-        StructField("subtipo_de_contrato", StringType(), True),
-        StructField("fecha_de_publicacion_del", DateType(), True),
-        StructField("fecha_de_ultima_publicaci", DateType(), True),
-        StructField("fecha_de_publicacion_fase_3", DateType(), True),
-        StructField("fecha_de_recepcion_de", DateType(), True),
-        StructField("fecha_de_apertura_efectiva", DateType(), True),
-    ]
-)
+def _clean_modalidad_contratacion_2(mod: str):
+    """Clean and group modalidad de contratación for SECOP II"""
+    if "concurso" in mod:
+        return "concurso meritos"
+    elif "licitacion" in mod:
+        return "licitacion publica"
+    elif "cuantia" in mod:
+        return "menor cuantia"
+    elif "contratacion directa" in mod:
+        return "contratacion directa"
+    elif "regimen especial" in mod:
+        return "regimen especial"
+    elif "subasta" in mod:
+        return "subasta"
+    else:
+        return "otro"
 
-schema_secop_int = StructType(
-    [
-        StructField("nivel_entidad", StringType(), True),
-        StructField("nombre_de_la_entidad", StringType(), True),
-        StructField("nit_de_la_entidad", StringType(), True),
-        StructField("estado_del_proceso", StringType(), True),
-        StructField("modalidad_de_contrataci_n", StringType(), True),
-        StructField("objeto_a_contratar", StringType(), True),
-        StructField("tipo_de_contrato", StringType(), True),
-        StructField("valor_contrato", StringType(), True),
-        StructField("nom_raz_social_contratista", StringType(), True),
-        StructField("departamento_entidad", StringType(), True),
-        StructField("municipio_entidad", StringType(), True),
-        StructField("objeto_del_proceso", StringType(), True),
-        StructField("fecha_de_firma_del_contrato", DateType(), True),
-        StructField("fecha_inicio_ejecucion", DateType(), True),
-        StructField("fecha_fin_ejecucion", DateType(), True),
-    ]
-)
+
+def _clean_tipodocproveecor(tip: str):
+    """Clean and group tipodocproveecor for SECOP II"""
+    if tip in ["cedula de ciudadania", "nit"]:
+        return tip
+    else:
+        return "Otro"
+
+
+def _to_int(x: str, err: int = 0):
+    try:
+        return int(x.replace(".", ""))
+    except:
+        return err
+
+
+dic_schemas = {
+    "schema_secop_2": StructType(
+        [
+            StructField("nit_entidad", StringType(), True),
+            StructField("entidad", StringType(), True),
+            StructField("departamento_entidad", StringType(), True),
+            StructField("ciudad_entidad", StringType(), True),
+            StructField("ordenentidad", StringType(), True),
+            StructField("id_del_proceso", StringType(), True),
+            StructField("referencia_del_proceso", StringType(), True),
+            StructField("nombre_del_procedimiento", StringType(), True),
+            StructField("descripci_n_del_procedimiento", StringType(), True),
+            StructField("fase", StringType(), True),
+            StructField("precio_base", StringType(), True),
+            StructField("modalidad_de_contratacion", StringType(), True),
+            StructField("duracion", StringType(), True),
+            StructField("unidad_de_duracion", StringType(), True),
+            StructField("proveedores_invitados", StringType(), True),
+            StructField("proveedores_con_invitacion", StringType(), True),
+            StructField("visualizaciones_del", StringType(), True),
+            StructField("proveedores_que_manifestaron", StringType(), True),
+            StructField("respuestas_al_procedimiento", StringType(), True),
+            StructField("respuestas_externas", StringType(), True),
+            StructField("conteo_de_respuestas_a_ofertas", StringType(), True),
+            StructField("proveedores_unicos_con", StringType(), True),
+            StructField("estado_del_procedimiento", StringType(), True),
+            StructField("adjudicado", StringType(), True),
+            StructField("departamento_proveedor", StringType(), True),
+            StructField("ciudad_proveedor", StringType(), True),
+            StructField("valor_total_adjudicacion", StringType(), True),
+            StructField("nombre_del_adjudicador", StringType(), True),
+            StructField("nombre_del_proveedor", StringType(), True),
+            StructField("nit_del_proveedor_adjudicado", StringType(), True),
+            StructField("tipo_de_contrato", StringType(), True),
+            StructField("subtipo_de_contrato", StringType(), True),
+            StructField("fecha_de_publicacion_del", DateType(), True),
+            StructField("fecha_de_ultima_publicaci", DateType(), True),
+            StructField("fecha_de_publicacion_fase_3", DateType(), True),
+            StructField("fecha_de_recepcion_de", DateType(), True),
+            StructField("fecha_de_apertura_efectiva", DateType(), True),
+        ]
+    ),
+    "schema_secop_int": StructType(
+        [
+            StructField("nivel_entidad", StringType(), True),
+            StructField("nombre_de_la_entidad", StringType(), True),
+            StructField("nit_de_la_entidad", StringType(), True),
+            StructField("estado_del_proceso", StringType(), True),
+            StructField("modalidad_de_contrataci_n", StringType(), True),
+            StructField("objeto_a_contratar", StringType(), True),
+            StructField("tipo_de_contrato", StringType(), True),
+            StructField("valor_contrato", StringType(), True),
+            StructField("nom_raz_social_contratista", StringType(), True),
+            StructField("departamento_entidad", StringType(), True),
+            StructField("municipio_entidad", StringType(), True),
+            StructField("objeto_del_proceso", StringType(), True),
+            StructField("fecha_de_firma_del_contrato", DateType(), True),
+            StructField("fecha_inicio_ejecucion", DateType(), True),
+            StructField("fecha_fin_ejecucion", DateType(), True),
+        ]
+    ),
+    "schema_secop_2_cont": StructType(
+        [
+            StructField("nombre_entidad", StringType(), True),
+            StructField("nit_entidad", StringType(), True),
+            StructField("departamento", StringType(), True),
+            StructField("ciudad", StringType(), True),
+            StructField("orden", StringType(), True),
+            StructField("proceso_de_compra", StringType(), True),
+            StructField("referencia_del_contrato", StringType(), True),
+            StructField("estado_contrato", StringType(), True),
+            StructField("descripcion_del_proceso", StringType(), True),
+            StructField("modalidad_de_contratacion", StringType(), True),
+            StructField("fecha_de_firma", DateType(), True),
+            StructField("fecha_de_inicio_del_contrato", DateType(), True),
+            StructField("fecha_de_fin_del_contrato", DateType(), True),
+            StructField("tipodocproveedor", StringType(), True),
+            StructField("documento_proveedor", StringType(), True),
+            StructField("proveedor_adjudicado", StringType(), True),
+            StructField("valor_del_contrato", StringType(), True),
+            StructField("objeto_del_contrato", StringType(), True),
+            StructField("dias_adicionados", StringType(), True),
+        ]
+    ),
+}

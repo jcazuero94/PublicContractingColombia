@@ -10,6 +10,24 @@ secop_2@pandas:
   type: secop.extras.pandas_dataset_secop.ParquetDataSetSecop
   filepath: data/01_raw/secop_2
 
+secop_2_cont@spark:
+  type: secop.extras.spark_dataset_secop.SparkDataSetSECOP
+  file_format: parquet
+  filepath: data/01_raw/secop_2_cont
+  save_args:
+    partitionBy: nit_entidad
+    mode: overwrite
+
+secop_2_cont@pandas:
+  type: secop.extras.pandas_dataset_secop.ParquetDataSetSecop
+  filepath: data/01_raw/secop_2_cont
+
+economia_departamentos:
+  type: pandas.CSVDataSet
+  filepath: data/01_raw/EconomiaDepartamentos.csv
+  load_args:
+    sep: ";"
+
 secop_int:
   type: secop.extras.spark_dataset_secop.SparkDataSetSECOP
   file_format: parquet
@@ -26,6 +44,14 @@ secop_2_log_out:
   type: json.JSONDataSet
   filepath: data/01_raw/secop_2_log.json
 
+secop_2_cont_log_in:
+  type: json.JSONDataSet
+  filepath: data/01_raw/secop_2_cont_log.json
+
+secop_2_cont_log_out:
+  type: json.JSONDataSet
+  filepath: data/01_raw/secop_2_cont_log.json
+
 secop_int_log_in:
   type: json.JSONDataSet
   filepath: data/01_raw/secop_int_log.json
@@ -41,3 +67,7 @@ secop_int_clean:
   save_args:
     mode: overwrite
     partitionBy: nit_de_la_entidad
+
+secop_2_clean:
+  type: secop.extras.pandas_dataset_secop.ParquetDataSetSecop
+  filepath: data/02_intermediate/secop_2_clean

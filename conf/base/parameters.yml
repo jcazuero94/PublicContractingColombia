@@ -1,1 +1,9 @@
-num_nits_to_extract: 200
+num_nits_to_extract: 1000
+code_integrated: "rpmr-utcd"
+code_secop2: "p6dx-8zbt"
+code_secop2_cont: "jbjy-vk9h"
+col_part_secop_int: "nit_de_la_entidad"
+col_part_secop_2: "nit_entidad"
+schema_secop_2_key: "schema_secop_2"
+schema_secop_int_key: "schema_secop_int"
+schema_secop_2_cont_key: "schema_secop_2_cont"
