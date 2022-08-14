@@ -4,6 +4,7 @@ from secop.pipelines.data_engineering.nodes import (
     secop_extraction,
     clean_secop_int,
     clean_secop_2,
+    clean_secop_2_cont,
 )
 
 
@@ -91,6 +92,13 @@ def create_pipeline(**kwargs):
                 func=clean_secop_2,
                 inputs=["secop_2@pandas"],
                 outputs="secop_2_clean",
+                tags=["data_engineering"],
+            ),
+            node(
+                name="clean_secop_2_cont",
+                func=clean_secop_2_cont,
+                inputs=["secop_2_cont@pandas", "economia_departamentos"],
+                outputs="secop_2_cont_clean",
                 tags=["data_engineering"],
             ),
         ]

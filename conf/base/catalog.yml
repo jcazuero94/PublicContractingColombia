@@ -71,3 +71,37 @@ secop_int_clean:
 secop_2_clean:
   type: secop.extras.pandas_dataset_secop.ParquetDataSetSecop
   filepath: data/02_intermediate/secop_2_clean
+
+secop_2_cont_clean:
+  type: pandas.ParquetDataSet
+  filepath: data/02_intermediate/secop_2_cont_clean
+
+# Data Science
+train_contract_value:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/train_contract_value
+
+cv_contract_value:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/cv_contract_value
+
+test_contract_value:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/test_contract_value
+
+train_contract_value_rnn:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/train_contract_value_rnn
+
+cv_contract_value_rnn:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/cv_contract_value_rnn
+
+test_contract_value_rnn:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/test_contract_value_rnn
+
+df_clusters_contract:
+  type: pandas.ParquetDataSet
+  filepath: data/05_model_input/df_clusters_contract
+

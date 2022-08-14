@@ -14,11 +14,16 @@ from secop.pipelines.data_engineering.utilities import (
     _clean_modalidad_contratacion_2,
     _clean_tipo_contrato,
     _to_int,
+    _clean_tipodocproveecor,
 )
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
 import pyspark.sql.functions as F
 from pyspark.sql.functions import col, udf
+import nltk
+import string
+import re
+import simplemma
 
 CODE_INTEGRATED = "rpmr-utcd"
 CODE_SECOPII = "p6dx-8zbt"
@@ -232,3 +237,125 @@ def clean_secop_2(secop_2: pd.DataFrame):
     ).year
     secop_2.drop_duplicates(inplace=True)
     return secop_2
+
+
+def clean_secop_2_cont(secop_2: pd.DataFrame, economia_departamentos: pd.DataFrame):
+    """Cleans dataset of secop 2 contracts"""
+    # Remove tildes and transform to lower case
+    COLS_TILDES_LOWER = [
+        "nombre_entidad",
+        "departamento",
+        "ciudad",
+        "orden",
+        "estado_contrato",
+        "modalidad_de_contratacion",
+        "tipodocproveedor",
+        "proveedor_adjudicado",
+    ]
+    secop_2[COLS_TILDES_LOWER] = (
+        secop_2[COLS_TILDES_LOWER].applymap(lambda x: _remove_tildes(x.lower())).values
+    )
+    # And only to lower case for not categorical
+    secop_2["descripcion_del_proceso"] = secop_2["descripcion_del_proceso"].apply(
+        str.lower
+    )
+    secop_2["objeto_del_contrato"] = secop_2["objeto_del_contrato"].apply(str.lower)
+    secop_2["modalidad_de_contratacion"] = secop_2["modalidad_de_contratacion"].apply(
+        _clean_modalidad_contratacion_2
+    )
+    # Dropna
+    secop_2.dropna(subset=["fecha_de_firma", "fecha_de_fin_del_contrato"], inplace=True)
+    # Process nit
+    secop_2["nit_entidad"] = (
+        secop_2["nit_entidad"]
+        .astype(int)
+        .apply(lambda x: int(np.floor(x / 10)) if x >= 1000000000 else x)
+    )
+    # To int
+    for c in ["dias_adicionados", "valor_del_contrato", "documento_proveedor"]:
+        secop_2[c] = secop_2[c].apply(_to_int)
+    # Remove convenios interadministrativos
+    secop_2 = secop_2[
+        ~secop_2["descripcion_del_proceso"].apply(
+            lambda x: x[:29] == "convenio interadministrativo"
+        )
+    ].copy()
+    secop_2 = secop_2[
+        ~secop_2["proveedor_adjudicado"].isin(secop_2["nombre_entidad"].unique())
+    ].copy()
+    # CLean tipo de proveedor
+    secop_2["tipodocproveedor"] = secop_2["tipodocproveedor"].apply(
+        _clean_tipodocproveecor
+    )
+    # Remove rows with problems
+    secop_2 = secop_2[secop_2["valor_del_contrato"] > 0].copy()
+    secop_2 = secop_2[secop_2["nombre_entidad"] != "viviana bravo rivas"].copy()
+    # Log value to decrease skewness
+    secop_2["log_valor_del_contrato"] = secop_2["valor_del_contrato"].apply(np.log)
+    # Text processing
+    stopwords = nltk.corpus.stopwords.words("spanish")
+    stopwords = [
+        "".join([s for s in w if s not in string.punctuation]) for w in stopwords
+    ]
+
+    def text_preprocessing(sentence: str):
+        # Replace newline and dash
+        sentence = re.sub(r"\n|-", " ", sentence)
+        # Delete punctuation
+        sentence = "".join([s for s in sentence if s not in string.punctuation])
+        # Remove stopwords
+        sentence = [w for w in sentence.split(" ") if w not in stopwords and w != ""]
+        # Lemmatize
+        return " ".join([simplemma.lemmatize(t, lang="es") for t in sentence])
+
+    secop_2["full_contract_description"] = (
+        secop_2["descripcion_del_proceso"] + " " + secop_2["objeto_del_contrato"]
+    )
+    secop_2["full_contract_description"] = secop_2["full_contract_description"].apply(
+        text_preprocessing
+    )
+    # Duration
+    secop_2["duration_days"] = secop_2.apply(
+        lambda row: max(
+            0, (row["fecha_de_fin_del_contrato"] - row["fecha_de_firma"]).days
+        )
+        if pd.isna(row["fecha_de_inicio_del_contrato"])
+        else (
+            row["fecha_de_fin_del_contrato"] - row["fecha_de_inicio_del_contrato"]
+        ).days,
+        axis=1,
+    )
+    secop_2 = secop_2[secop_2["duration_days"] >= 0].copy()
+    # Add economic information
+    economia_departamentos["Departamento"] = economia_departamentos[
+        "Departamento"
+    ].apply(lambda x: _remove_tildes(x.lower()))
+    economia_departamentos["Departamento"] = economia_departamentos[
+        "Departamento"
+    ].replace(
+        {
+            "san andres, providencia y santa catalina (archipielago)": "san andres, providencia y santa catalina",
+            "bogota d.c.": "distrito capital de bogota",
+        }
+    )
+    economia_departamentos.drop("Codigo", axis=1, inplace=True)
+    for c in economia_departamentos.columns:
+        if c not in ["Departamento", "Poblacion"]:
+            economia_departamentos[c] = (
+                economia_departamentos[c] / economia_departamentos["Poblacion"]
+            )
+    secop_2 = pd.merge(
+        secop_2,
+        economia_departamentos,
+        how="left",
+        left_on="departamento",
+        right_on="Departamento",
+    )
+    secop_2.drop("Departamento", axis=1, inplace=True)
+    for c in economia_departamentos.columns:
+        if c != "Departamento":
+            secop_2[c] = secop_2[c].fillna(value=secop_2[c].mean())
+    secop_2["days_ref"] = secop_2["fecha_de_firma"].apply(
+        lambda x: (x - datetime.date(2000, 1, 1)).days
+    )
+    return secop_2.reset_index(drop=True).reset_index()
