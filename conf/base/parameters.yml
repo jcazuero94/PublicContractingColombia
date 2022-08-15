@@ -8,3 +8,4 @@ schema_secop_2_key: "schema_secop_2"
 schema_secop_int_key: "schema_secop_int"
 schema_secop_2_cont_key: "schema_secop_2_cont"
 features_text: 400
+rnn_from_checkpoint: False

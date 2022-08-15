@@ -358,4 +358,20 @@ def clean_secop_2_cont(secop_2: pd.DataFrame, economia_departamentos: pd.DataFra
     secop_2["days_ref"] = secop_2["fecha_de_firma"].apply(
         lambda x: (x - datetime.date(2000, 1, 1)).days
     )
+    secop_2 = secop_2[
+        (
+            (secop_2["documento_proveedor"] > 1000000)
+            & (secop_2["documento_proveedor"] < 2000000000)
+        )
+        | (secop_2["tipodocproveedor"] != "cedula de ciudadania")
+    ].copy()
+    secop_2["fecha_de_inicio_del_contrato"] = secop_2.apply(
+        lambda row: min(
+            row["fecha_de_fin_del_contrato"],
+            row["fecha_de_firma"]
+            if pd.isna(row["fecha_de_inicio_del_contrato"])
+            else row["fecha_de_inicio_del_contrato"],
+        ),
+        axis=1,
+    )
     return secop_2.reset_index(drop=True).reset_index()

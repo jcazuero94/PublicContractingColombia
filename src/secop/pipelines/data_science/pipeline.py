@@ -2,6 +2,7 @@ from kedro.pipeline import Pipeline, node
 from secop.pipelines.data_science.nodes import (
     split_contract_value,
     prepare_clusters_contract,
+    train_rnn,
 )
 
 
@@ -27,6 +28,17 @@ def create_pipeline(**kwargs):
                 func=prepare_clusters_contract,
                 inputs=["secop_2_cont_clean", "params:features_text"],
                 outputs="df_clusters_contract",
+                tags=["data_science"],
+            ),
+            node(
+                name="train_rnn",
+                func=train_rnn,
+                inputs=[
+                    "train_contract_value_rnn",
+                    "cv_contract_value_rnn",
+                    "params:rnn_from_checkpoint",
+                ],
+                outputs=None,
                 tags=["data_science"],
             ),
         ]
