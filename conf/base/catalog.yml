@@ -76,6 +76,14 @@ secop_2_cont_clean:
   type: pandas.ParquetDataSet
   filepath: data/02_intermediate/secop_2_cont_clean
 
+df_personas:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/df_personas
+
+df_empresas:
+  type: pandas.ParquetDataSet
+  filepath: data/03_primary/df_empresas
+
 # Data Science
 train_contract_value:
   type: pandas.ParquetDataSet

@@ -1,4 +1,5 @@
 from pyspark.sql.types import StructType, StructField, StringType, DateType
+import datetime
 
 
 def _get_nits_to_extract(log: dict, num_nits_to_extract: int):

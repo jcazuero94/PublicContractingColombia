@@ -1,4 +1,6 @@
 import numpy as np
+import datetime
+
 
 def _vectorize(description, vectorizer):
     arr = description.split(" ")
@@ -27,3 +29,17 @@ def _padArr(arr, arr_size, tot_size):
 def _padSer(ser, arr_size):
     tot_size = ser.apply(len).max()
     return ser.apply(lambda arr: _padArr(arr, arr_size, tot_size))
+
+
+def _max_open_contracts(ser):
+    if len(ser) == 1:
+        return 1
+    dates_to_ck = list(ser.apply(lambda x: x[0])) + list(
+        ser.apply(lambda x: x[1] + datetime.timedelta(days=1))
+    )
+    return max(
+        [
+            ((ser.apply(lambda x: x[0]) <= d) & (ser.apply(lambda x: x[1]) >= d)).sum()
+            for d in dates_to_ck
+        ]
+    )

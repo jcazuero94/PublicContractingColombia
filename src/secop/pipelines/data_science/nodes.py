@@ -7,13 +7,18 @@ import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import StandardScaler
-from secop.pipelines.data_science.utilities import _vectorize, _padSer
+from secop.pipelines.data_science.utilities import (
+    _vectorize,
+    _padSer,
+    _max_open_contracts,
+)
 import tensorflow as tf
 from tensorflow import keras
 from gensim import downloader
 from sklearn.metrics import mean_squared_error
 import datetime
 import os
+from sklearn.decomposition import PCA
 
 
 def split_contract_value(secop_clean: pd.DataFrame, features_text: int):
@@ -291,3 +296,102 @@ def train_rnn(train: pd.DataFrame, cv: pd.DataFrame, from_checkpoint: bool):
             cont += 1
         if cont > 5:
             break
+
+
+def prepare_dfs_providers(secop: pd.DataFrame):
+    """Creates DFs with information by provider for bussiness and people"""
+    # setup
+    today = datetime.date.today()
+    features_text = 100
+    features_tfid = [f"feat_text_{i+1}" for i in range(features_text)]
+    # TFID vectorization
+    vectorizer = TfidfVectorizer(max_features=features_text)
+    text_df = pd.DataFrame(
+        columns=features_tfid,
+        data=np.array(
+            vectorizer.fit_transform(secop["full_contract_description"]).todense()
+        ),
+    )
+    secop = pd.merge(secop, text_df, how="inner", left_index=True, right_index=True)
+    # Dummies and column including dates
+    secop = pd.get_dummies(
+        secop, columns=["orden", "modalidad_de_contratacion"], drop_first=True
+    )
+    secop["date_duration"] = secop.apply(
+        lambda row: (
+            row["fecha_de_inicio_del_contrato"],
+            row["fecha_de_fin_del_contrato"],
+        ),
+        axis=1,
+    )
+    # Split between bussiness and people
+    secop_personas = secop[secop["tipodocproveedor"] == "cedula de ciudadania"].copy()
+    secop_empresas = secop[secop["tipodocproveedor"] == "nit"].copy()
+    # PCA for dimension reduction
+    cols_pca = (
+        ["Poblacion", "ValorAgregado", "Impuestos", "PIB"]
+        + features_tfid
+        + [
+            c
+            for c in secop_personas.columns
+            if "orden" in c or "modalidad_de_contratacion" in c
+        ]
+    )
+    ss = StandardScaler()
+    n_pca = 10
+    pca = PCA(n_components=n_pca)
+    data_personas_pca = pca.fit_transform(ss.fit_transform(secop_personas[cols_pca]))
+    data_empresas_pca = pca.fit_transform(ss.fit_transform(secop_empresas[cols_pca]))
+    secop_personas.drop(cols_pca, axis=1, inplace=True)
+    secop_empresas.drop(cols_pca, axis=1, inplace=True)
+    secop_personas[[f"pca_{i}" for i in range(n_pca)]] = data_personas_pca
+    secop_empresas[[f"pca_{i}" for i in range(n_pca)]] = data_empresas_pca
+    # Group datasets
+    df_personas = secop_personas.groupby("documento_proveedor").agg(
+        {
+            **{
+                "nombre_entidad": pd.Series.nunique,
+                "index": "count",
+                "ciudad": pd.Series.nunique,
+                "valor_del_contrato": "mean",
+                "dias_adicionados": "mean",
+                "date_duration": _max_open_contracts,
+                "fecha_de_inicio_del_contrato": "min",
+            },
+            **{f"pca_{i}": "mean" for i in range(n_pca)},
+        }
+    )
+    # df_personas.columns = ["_".join(x) for x in df_personas.columns.to_flat_index()]
+    df_empresas = secop_empresas.groupby("documento_proveedor").agg(
+        {
+            **{
+                "nombre_entidad": pd.Series.nunique,
+                "index": "count",
+                "ciudad": pd.Series.nunique,
+                "valor_del_contrato": "mean",
+                "dias_adicionados": "mean",
+                "date_duration": _max_open_contracts,
+                "fecha_de_inicio_del_contrato": "min",
+            },
+            **{f"pca_{i}": "mean" for i in range(n_pca)},
+        }
+    )
+    # df_empresas.columns = ["_".join(x) for x in df_empresas.columns.to_flat_index()]
+
+    df_personas = pd.merge(
+        df_personas,
+        secop[["proveedor_adjudicado", "documento_proveedor"]].drop_duplicates(
+            subset="documento_proveedor"
+        ),
+        how="left",
+        on="documento_proveedor",
+    )
+    df_empresas = pd.merge(
+        df_empresas,
+        secop[["proveedor_adjudicado", "documento_proveedor"]].drop_duplicates(
+            subset="documento_proveedor"
+        ),
+        how="left",
+        on="documento_proveedor",
+    )
+    return df_personas, df_empresas
