@@ -22,11 +22,7 @@ import itertools
 from wordcloud import WordCloud
 ```
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -41,11 +37,7 @@ warnings.filterwarnings("ignore")
 %matplotlib inline
 ```
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -109,11 +101,7 @@ def prop_counts(ser: pd.Series):
     return (res * 100).apply(lambda x: str(int(np.round(x, 0))) + "%")
 ```
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -132,11 +120,7 @@ secop = catalog.load("secop_2_cont_clean")
 
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -153,11 +137,7 @@ len(secop)
 
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -176,11 +156,7 @@ Name: tipodocproveedor, dtype: object
 
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -205,11 +181,7 @@ Name: modalidad_de_contratacion, dtype: object
 
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -244,11 +216,7 @@ plt.plot(
     
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -276,11 +244,7 @@ fig.set_size_inches(12, 7)
     
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -297,11 +261,7 @@ fig.set_size_inches(8, 6)
     
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -330,11 +290,7 @@ fig.set_size_inches(12, 7)
     
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -361,11 +317,7 @@ wc.to_image()
 
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -384,11 +336,7 @@ df_personas = catalog.load("df_personas")
 
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -510,11 +458,7 @@ res
 
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -538,11 +482,7 @@ print(
     The average contract extension is of 30.13 days
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -565,11 +505,7 @@ fig.set_size_inches(12, 6)
     
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -586,11 +522,7 @@ df_empresas = catalog.load("df_empresas")
 
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -712,11 +644,7 @@ res
 
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -740,11 +668,7 @@ print(
     The average contract extension is of 36.36 days
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -767,11 +691,7 @@ fig.set_size_inches(12, 6)
     
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -834,11 +754,7 @@ df_contractors["valor_del_contrato"] = df_contractors[
 ].apply(np.exp)
 ```
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -865,11 +781,7 @@ fig.set_size_inches(12, 4)
     
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -885,11 +797,7 @@ df_contractors.rename(
 )
 ```
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -916,11 +824,7 @@ fig.set_size_inches(12, 4)
     
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
@@ -1094,11 +998,7 @@ df_contractors[df_contractors["outlier"]][
 
 
 
-
-<pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><span style="font-weight: bold">&lt;</span><span style="color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold">IPython.core.display.Javascript</span><span style="color: #000000; text-decoration-color: #000000"> object</span><span style="font-weight: bold">&gt;</span>
-</pre>
-
-
+ 
 
 
 
