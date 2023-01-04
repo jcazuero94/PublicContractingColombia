@@ -11,13 +11,13 @@ from secop.pipelines.data_engineering.nodes import (
 def create_pipeline(**kwargs):
     return Pipeline(
         [
-            # node(
-            #     name="secop_2_log",
-            #     func=secop_log,
-            #     inputs=["params:code_secop2", "params:col_part_secop_2"],
-            #     outputs="secop_2_log_in",
-            #     tags=["data_engineering"],
-            # ),
+            node(
+                name="secop_2_log",
+                func=secop_log,
+                inputs=["params:code_secop2", "params:col_part_secop_2"],
+                outputs="secop_2_log_in",
+                tags=["data_engineering"],
+            ),
             node(
                 name="secop_2_cont_log",
                 func=secop_log,
@@ -25,13 +25,13 @@ def create_pipeline(**kwargs):
                 outputs="secop_2_cont_log_in",
                 tags=["data_engineering"],
             ),
-            # node(
-            #     name="secop_int_log",
-            #     func=secop_log,
-            #     inputs=["params:code_integrated", "params:col_part_secop_int"],
-            #     outputs="secop_int_log_in",
-            #     tags=["data_engineering"],
-            # ),
+            node(
+                name="secop_int_log",
+                func=secop_log,
+                inputs=["params:code_integrated", "params:col_part_secop_int"],
+                outputs="secop_int_log_in",
+                tags=["data_engineering"],
+            ),
             # node(
             #     name="secop_2_extraction",
             #     func=secop_extraction,
