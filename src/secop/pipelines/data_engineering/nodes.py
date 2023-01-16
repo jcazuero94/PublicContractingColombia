@@ -245,12 +245,14 @@ def clean_secop_2_cont(secop_2: pd.DataFrame, economia_departamentos: pd.DataFra
     COLS_TILDES_LOWER = [
         "nombre_entidad",
         "departamento",
-        "ciudad",
         "orden",
+        "sector",
+        "entidad_centralizada",
         "estado_contrato",
         "modalidad_de_contratacion",
         "tipodocproveedor",
         "proveedor_adjudicado",
+        "tipo_de_identificaci_n_representante_legal",
     ]
     secop_2[COLS_TILDES_LOWER] = (
         secop_2[COLS_TILDES_LOWER].applymap(lambda x: _remove_tildes(x.lower())).values
@@ -374,4 +376,6 @@ def clean_secop_2_cont(secop_2: pd.DataFrame, economia_departamentos: pd.DataFra
         ),
         axis=1,
     )
+    secop_2["urlproceso"] = secop_2["urlproceso"].apply(lambda x: x[5:-1])
+    secop_2["documento_proveedor"] = secop_2["documento_proveedor"].astype(str)
     return secop_2.reset_index(drop=True).reset_index()

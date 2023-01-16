@@ -175,12 +175,15 @@ dic_schemas = {
             StructField("nombre_entidad", StringType(), True),
             StructField("nit_entidad", StringType(), True),
             StructField("departamento", StringType(), True),
-            StructField("ciudad", StringType(), True),
             StructField("orden", StringType(), True),
+            StructField("sector", StringType(), True),
+            StructField("entidad_centralizada", StringType(), True),
             StructField("proceso_de_compra", StringType(), True),
+            StructField("id_contrato", StringType(), True),
             StructField("referencia_del_contrato", StringType(), True),
             StructField("estado_contrato", StringType(), True),
             StructField("descripcion_del_proceso", StringType(), True),
+            StructField("tipo_de_contrato", StringType(), True),
             StructField("modalidad_de_contratacion", StringType(), True),
             StructField("fecha_de_firma", DateType(), True),
             StructField("fecha_de_inicio_del_contrato", DateType(), True),
@@ -191,6 +194,11 @@ dic_schemas = {
             StructField("valor_del_contrato", StringType(), True),
             StructField("objeto_del_contrato", StringType(), True),
             StructField("dias_adicionados", StringType(), True),
+            StructField("urlproceso", StringType(), True),
+            StructField(
+                "tipo_de_identificaci_n_representante_legal", StringType(), True
+            ),
+            StructField("identificaci_n_representante_legal", StringType(), True),
         ]
     ),
 }
